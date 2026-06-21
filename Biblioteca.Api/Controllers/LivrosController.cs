@@ -53,9 +53,9 @@ namespace Biblioteca.Api.Controllers
                         Success = false,
                         Message = "Livro não encontrado",
                         Errors = new Dictionary<string, string>
-                {
-                    { "id", "Nenhum livro encontrado com esse id" }
-                }
+                        {
+                            { "id", "Nenhum livro encontrado com esse id" }
+                        }
                     });
                 }
 
@@ -125,7 +125,50 @@ namespace Biblioteca.Api.Controllers
         }
 
         
-        //[HttpDelete("{id}")]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Id inválido"
+                    });
+                }
+
+                bool deleted = _repository.Delete(id);
+
+                if (!deleted)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Livro não encontrado"
+                    });
+                }
+
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Message = "Livro deletado com sucesso"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Erro interno no servidor",
+                    Errors = new Dictionary<string, string>
+                    {
+                        { "server", ex.Message }
+                    }
+                });
+            }
+        }
         //[HttpPut("{id}")]
     }
 }
