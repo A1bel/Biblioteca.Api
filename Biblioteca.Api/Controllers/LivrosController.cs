@@ -36,11 +36,7 @@ namespace Biblioteca.Api.Controllers
                     return BadRequest(new ApiResponse<object>
                     {
                         Success = false,
-                        Message = "Id inválido",
-                        Errors = new Dictionary<string, string>
-                        {
-                            { "id", "O id deve ser maior que zero" }
-                        }
+                        Message = "Id deve ser maior que zero"
                     });
                 }
 
@@ -51,11 +47,7 @@ namespace Biblioteca.Api.Controllers
                     return NotFound(new ApiResponse<object>
                     {
                         Success = false,
-                        Message = "Livro não encontrado",
-                        Errors = new Dictionary<string, string>
-                        {
-                            { "id", "Nenhum livro encontrado com esse id" }
-                        }
+                        Message = "Livro não encontrado",                 
                     });
                 }
 
