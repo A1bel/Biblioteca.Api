@@ -49,6 +49,45 @@ namespace Biblioteca.Api.Repositories
             return livros;
         }
 
+        public Livro Get(int id)
+        {
+
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                SELECT id,
+                    categoria,
+                    titulo,
+                    quantidade_total,
+                    quantidade_disponivel,
+                    publicacao
+                FROM cad.livro
+                WHERE id = @id
+            ";
+
+            command.Parameters.AddWithValue("@id", id);
+            using SqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                Livro livro = new Livro
+                {
+                    Id = Convert.ToInt32(reader["id"]),
+                    Categoria = reader["categoria"].ToString(),
+                    Titulo = reader["titulo"].ToString(),
+                    QuantidadeTotal = Convert.ToInt32(reader["quantidade_total"]),
+                    QuantidadeDisponivel = Convert.ToInt32(reader["quantidade_disponivel"]),
+                    Publicacao = DateOnly.FromDateTime(Convert.ToDateTime(reader["publicacao"]))
+                };
+
+                return livro;
+            }
+
+            return null;
+        }
+
         public void Add(Livro livro)
         {
 

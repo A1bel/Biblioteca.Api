@@ -18,13 +18,70 @@ namespace Biblioteca.Api.Controllers
             _repository = livroRepository;
         }
 
+        //BUSCAR TODOS LIVROS
         [HttpGet]
         public IActionResult GetAll()
         {
             return Ok(_repository.GetAll());
         }
 
+        //BUSCAR UM LIVRO
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Id inválido",
+                        Errors = new Dictionary<string, string>
+                        {
+                            { "id", "O id deve ser maior que zero" }
+                        }
+                    });
+                }
 
+                var livro = _repository.Get(id);
+
+                if (livro == null)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Livro não encontrado",
+                        Errors = new Dictionary<string, string>
+                {
+                    { "id", "Nenhum livro encontrado com esse id" }
+                }
+                    });
+                }
+
+                return Ok(new ApiResponse<Livro>
+                {
+                    Success = true,
+                    Message = "Livro encontrado",
+                    Data = livro
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Erro interno no servidor",
+                    Errors = new Dictionary<string, string>
+                    {
+                        { "server", ex.Message }
+                    }
+                });
+            }
+        }
+
+        //CADASTRAR NOVO LIVRO
         [HttpPost]
         public IActionResult Add(Livro livro)
         {
@@ -67,7 +124,7 @@ namespace Biblioteca.Api.Controllers
             }
         }
 
-        //[HttpGet("{id}")]
+        
         //[HttpDelete("{id}")]
         //[HttpPut("{id}")]
     }
