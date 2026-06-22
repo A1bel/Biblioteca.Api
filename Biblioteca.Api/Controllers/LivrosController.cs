@@ -116,7 +116,7 @@ namespace Biblioteca.Api.Controllers
             }
         }
 
-        
+        //DELETAR UM LIVRO
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -161,6 +161,100 @@ namespace Biblioteca.Api.Controllers
                 });
             }
         }
-        //[HttpPut("{id}")]
+        
+        //EDITAR UM LIVRO
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, Livro livro)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "O id deve ser maior que zero"
+                    });
+                }
+
+                LivroValidator validator = new();
+                var errors = validator.Validate(livro);
+
+                if (errors.Count > 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Dados inválidos",
+                        Errors = errors
+                    });
+                }
+
+                Livro livroAtual = _repository.Get(id);
+
+                if (livroAtual == null)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Livro não encontrado"
+                    });
+                }
+
+                int livrosEmprestados =
+                livroAtual.QuantidadeTotal - livroAtual.QuantidadeDisponivel;
+
+                if (livro.QuantidadeTotal < livroAtual.QuantidadeDisponivel)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = $"A quantidade total não pode ser menor que {livroAtual.QuantidadeDisponivel}, pois existem livros disponíveis."
+                    });
+                }
+
+                if (livro.QuantidadeTotal < livrosEmprestados)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = $"A quantidade total não pode ser menor que {livrosEmprestados}, pois existem livros emprestados."
+                    });
+                }
+
+                livro.Id = id;
+
+                bool updated = _repository.Update(livro);
+
+                if (!updated)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Livro não encontrado"
+                    });
+                }
+
+                return Ok(new ApiResponse<Livro>
+                {
+                    Success = true,
+                    Message = "Livro atualizado com sucesso",
+                    Data = livro
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Erro interno no servidor",
+                    Errors = new Dictionary<string, string>
+                    {
+                        { "server", ex.Message }
+                    }
+                });
+            }
+        }
     }
 }

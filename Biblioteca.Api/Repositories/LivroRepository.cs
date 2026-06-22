@@ -126,5 +126,32 @@ namespace Biblioteca.Api.Repositories
 
             return rowsAffected > 0;
         }
+
+        public bool Update(Livro livro)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                UPDATE cad.livro
+                SET 
+                    titulo = @titulo,
+                    categoria = @categoria,
+                    quantidade_total = @quantidade_total,
+                    publicacao = @publicacao
+                WHERE id = @id
+            ";
+
+            command.Parameters.AddWithValue("@id", livro.Id);
+            command.Parameters.AddWithValue("@titulo", livro.Titulo);
+            command.Parameters.AddWithValue("@categoria", livro.Categoria);
+            command.Parameters.AddWithValue("@quantidade_total", livro.QuantidadeTotal);
+            command.Parameters.AddWithValue("@publicacao", livro.Publicacao);
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            return rowsAffected > 0;
+        }
     }
 }
