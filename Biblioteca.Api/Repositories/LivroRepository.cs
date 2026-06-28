@@ -139,6 +139,7 @@ namespace Biblioteca.Api.Repositories
                     titulo = @titulo,
                     categoria = @categoria,
                     quantidade_total = @quantidade_total,
+                    quantidade_disponivel = @quantidade_disponivel,
                     publicacao = @publicacao
                 WHERE id = @id
             ";
@@ -147,6 +148,7 @@ namespace Biblioteca.Api.Repositories
             command.Parameters.AddWithValue("@titulo", livro.Titulo);
             command.Parameters.AddWithValue("@categoria", livro.Categoria);
             command.Parameters.AddWithValue("@quantidade_total", livro.QuantidadeTotal);
+            command.Parameters.AddWithValue("@quantidade_disponivel", livro.QuantidadeDisponivel);
             command.Parameters.AddWithValue("@publicacao", livro.Publicacao);
 
             int rowsAffected = command.ExecuteNonQuery();

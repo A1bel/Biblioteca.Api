@@ -204,6 +204,8 @@ namespace Biblioteca.Api.Controllers
                 int livrosEmprestados =
                 livroAtual.QuantidadeTotal - livroAtual.QuantidadeDisponivel;
 
+                int diferencaQuantidade = livro.QuantidadeTotal - livroAtual.QuantidadeTotal;
+
                 if (livro.QuantidadeTotal < livroAtual.QuantidadeDisponivel)
                 {
                     return BadRequest(new ApiResponse<object>
@@ -222,6 +224,9 @@ namespace Biblioteca.Api.Controllers
                     });
                 }
 
+             
+                livro.QuantidadeDisponivel = livroAtual.QuantidadeDisponivel + diferencaQuantidade;
+                
                 livro.Id = id;
 
                 bool updated = _repository.Update(livro);
