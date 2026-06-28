@@ -49,5 +49,45 @@ namespace Biblioteca.Api.Repositories
 
             return usuarios;
         }
+
+        public Usuario Get(int id)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                SELECT 
+                    u.id,
+                    u.id_perfil,
+                    p.nome AS perfil,
+                    u.nome,
+                    u.cpf,
+                    u.email
+                FROM cad.usuario u
+                JOIN cad.perfil p
+                    ON u.id_perfil = p.id
+                WHERE u.id = @id;
+            ";
+
+            command.Parameters.AddWithValue("@id", id);
+            using SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                Usuario usuario = new Usuario
+                {
+                    Id = Convert.ToInt32(reader["id"]),
+                    IdPerfil = Convert.ToInt32(reader["id"]),
+                    Perfil = reader["perfil"].ToString(),
+                    Nome = reader["nome"].ToString(),
+                    Cpf = reader["cpf"].ToString(),
+                    Email = reader["email"].ToString()
+                };
+
+                return usuario;
+            }
+
+            return null;
+        }
     }
 }
