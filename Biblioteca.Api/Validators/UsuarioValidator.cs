@@ -9,9 +9,6 @@ namespace Biblioteca.Api.Validators
         {
             Dictionary<string, string> errors = [];
 
-            if (usuario.IdPerfil != 1 && usuario.IdPerfil != 2)
-                errors.Add("idPerfil", "Perfil inválido");
-
             if (string.IsNullOrEmpty(usuario.Nome))
                 errors.Add("nome", "O nome é obrigatório");
 

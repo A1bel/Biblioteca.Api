@@ -89,5 +89,59 @@ namespace Biblioteca.Api.Repositories
 
             return null;
         }
+
+        public void Add(Usuario usuario)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                INSERT INTO cad.usuario(id_perfil, nome, cpf, email, senha)
+                VALUES(@id_perfil, @nome, @cpf, @email, @senha)
+            ";
+
+            command.Parameters.AddWithValue("@id_perfil", usuario.IdPerfil);
+            command.Parameters.AddWithValue("@nome", usuario.Nome);
+            command.Parameters.AddWithValue("@cpf", usuario.Cpf);
+            command.Parameters.AddWithValue("@email", usuario.Email);
+            command.Parameters.AddWithValue("@senha", usuario.Senha);
+
+            command.ExecuteNonQuery();
+        }
+
+        public bool ExistsCpf(string cpf)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                SELECT COUNT(1)
+                FROM cad.usuario
+                WHERE cpf = @cpf;
+            ";
+
+            command.Parameters.AddWithValue("@cpf", cpf);
+
+            return (int)command.ExecuteScalar() > 0;
+        }
+
+        public bool ExistsEmail(string email)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                SELECT COUNT(1)
+                FROM cad.usuario
+                WHERE email = @email;
+            ";
+
+            command.Parameters.AddWithValue("@email", email);
+
+            return (int)command.ExecuteScalar() > 0;
+        }
     }
 }
