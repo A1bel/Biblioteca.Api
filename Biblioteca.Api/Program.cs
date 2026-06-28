@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<DatabaseAccess>();
 builder.Services.AddScoped<LivroRepository>();
+builder.Services.AddScoped<UsuarioRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
