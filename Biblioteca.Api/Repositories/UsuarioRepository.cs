@@ -145,5 +145,22 @@ namespace Biblioteca.Api.Repositories
 
             return (int)command.ExecuteScalar() > 0;
         }
+
+        public bool Delete(int id)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                DELETE FROM cad.usuario
+                WHERE id = @id
+            ";
+
+            command.Parameters.AddWithValue("@id", id);
+            int rowsAffected = command.ExecuteNonQuery();
+
+            return rowsAffected > 0;
+        }
     }
 }

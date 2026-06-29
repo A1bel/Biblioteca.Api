@@ -143,5 +143,51 @@ namespace Biblioteca.Api.Controllers
                 });
             }
         }
+
+        //DELETAR UM LIVRO
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            try
+            {
+                if(id <= 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Id inválido"
+                    });
+                }
+
+                bool deleted = _repository.Delete(id);
+
+                if (!deleted)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Usuário não encontrado"
+                    });
+                }
+
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Message = "Usuário deletado com sucesso"
+                });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Erro interno no servidor",
+                    Errors = new Dictionary<string, string>
+                    {
+                        { "server", ex.Message }
+                    }
+                });
+            }
+        }
     }
 }
