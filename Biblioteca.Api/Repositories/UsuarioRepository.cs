@@ -112,7 +112,7 @@ namespace Biblioteca.Api.Repositories
             return (int)command.ExecuteScalar();
         }
 
-        public bool ExistsCpf(string cpf)
+        public bool ExistsCpf(string cpf, int? ignoredId = null)
         {
             using SqlConnection connection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -121,15 +121,19 @@ namespace Biblioteca.Api.Repositories
             command.CommandText = @"
                 SELECT COUNT(1)
                 FROM cad.usuario
-                WHERE cpf = @cpf;
+                WHERE cpf = @cpf
             ";
 
+            if (ignoredId != null)
+                command.CommandText += " AND id <> @id";
+
             command.Parameters.AddWithValue("@cpf", cpf);
+            command.Parameters.AddWithValue("@id", ignoredId);
 
             return (int)command.ExecuteScalar() > 0;
         }
 
-        public bool ExistsEmail(string email)
+        public bool ExistsEmail(string email, int? ignoredId = null)
         {
             using SqlConnection connection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -138,10 +142,14 @@ namespace Biblioteca.Api.Repositories
             command.CommandText = @"
                 SELECT COUNT(1)
                 FROM cad.usuario
-                WHERE email = @email;
+                WHERE email = @email
             ";
 
+            if (ignoredId != null)
+                command.CommandText += " AND id <> @id";
+
             command.Parameters.AddWithValue("@email", email);
+            command.Parameters.AddWithValue("@id", ignoredId);
 
             return (int)command.ExecuteScalar() > 0;
         }
@@ -158,6 +166,31 @@ namespace Biblioteca.Api.Repositories
             ";
 
             command.Parameters.AddWithValue("@id", id);
+            int rowsAffected = command.ExecuteNonQuery();
+
+            return rowsAffected > 0;
+        }
+
+        public bool Update(Usuario usuario)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                UPDATE cad.usuario
+                SET
+                    nome = @nome,
+                    cpf = @cpf,
+                    email = @email
+                WHERE id = @id
+            ";
+
+            command.Parameters.AddWithValue("@id", usuario.Id);
+            command.Parameters.AddWithValue("@nome", usuario.Nome);
+            command.Parameters.AddWithValue("@cpf", usuario.Cpf);
+            command.Parameters.AddWithValue("@email", usuario.Email);
+
             int rowsAffected = command.ExecuteNonQuery();
 
             return rowsAffected > 0;

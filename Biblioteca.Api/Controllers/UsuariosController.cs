@@ -81,7 +81,7 @@ namespace Biblioteca.Api.Controllers
         {
             try
             {
-                UsuarioValidator validator = new UsuarioValidator();
+                UsuarioValidator validator = new();
                 var errors = validator.ValidateCreate(dto);
 
                 if (!errors.ContainsKey("cpf") && _repository.ExistsCpf(dto.Cpf))
@@ -174,6 +174,105 @@ namespace Biblioteca.Api.Controllers
                 {
                     Success = true,
                     Message = "Usuário deletado com sucesso"
+                });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Erro interno no servidor",
+                    Errors = new Dictionary<string, string>
+                    {
+                        { "server", ex.Message }
+                    }
+                });
+            }
+        }
+
+        //EDITAR UM USUARIO
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, UsuarioUpdateRequest dto)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "O id deve ser maior que zero"
+                    });
+                }
+
+                UsuarioValidator validator = new();
+                var errors = validator.ValidateUpdate(dto);
+
+                if (!errors.ContainsKey("cpf") && _repository.ExistsCpf(dto.Cpf, id))
+                {
+                    errors.Add("cpf", "CPF já cadastrado");
+                }
+
+                if (!errors.ContainsKey("email") && _repository.ExistsEmail(dto.Email, id))
+                {
+                    errors.Add("email", "E-mail já cadastrado");
+                }
+
+                if (errors.Count > 0)
+                {
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Dados inválidos",
+                        Errors = errors
+                    });
+                }
+
+                UsuarioResponse usuarioAtual = _repository.Get(id);
+
+                if(usuarioAtual == null)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Usuário não encontrado"
+                    });
+                }
+
+                Usuario usuario = new Usuario
+                {
+                    Id = id,
+                    Nome = dto.Nome,
+                    Cpf = dto.Cpf,
+                    Email = dto.Email
+                };
+
+                bool updated = _repository.Update(usuario);
+
+                if (!updated)
+                {
+                    return NotFound(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = "Usuário não encontrado"
+                    });
+                }
+
+                UsuarioResponse usuarioAtualizado = _repository.Get(id);
+
+                return Ok(new ApiResponse<UsuarioResponse>
+                {
+                    Success = true,
+                    Message = "Usuário atualizado com sucesso",
+                    Data = new UsuarioResponse
+                    {
+                        Id = usuarioAtualizado.Id,
+                        IdPerfil = usuarioAtualizado.IdPerfil,
+                        Perfil = usuarioAtualizado.Perfil,
+                        Nome = usuarioAtualizado.Nome,
+                        Cpf = usuarioAtualizado.Cpf,
+                        Email = usuarioAtualizado.Email
+                    }
                 });
             }
             catch(Exception ex)

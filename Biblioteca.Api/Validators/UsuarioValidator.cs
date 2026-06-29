@@ -52,5 +52,35 @@ namespace Biblioteca.Api.Validators
 
             return errors;
         }
+        public Dictionary<string, string> ValidateUpdate(UsuarioUpdateRequest usuario)
+        {
+            Dictionary<string, string> errors = [];
+
+            if (string.IsNullOrEmpty(usuario.Nome))
+                errors.Add("nome", "O nome é obrigatório");
+
+            if (string.IsNullOrEmpty(usuario.Cpf))
+                errors.Add("cpf", "O cpf é obrigatório");
+            else
+            {
+                if (usuario.Cpf.Length != 11)
+                    errors.Add("cpf", "O cpf deve conter 11 dígitos");
+                else if (!usuario.Cpf.All(char.IsDigit))
+                    errors.Add("cpf", "O cpf deve conter apenas números");
+            }
+
+            if (string.IsNullOrEmpty(usuario.Email))
+                errors.Add("email", "O email é obrigatório");
+            else
+            {
+                if (!Regex.IsMatch(usuario.Email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    errors.Add("email", "E-mail inválido");
+                }
+            }
+            
+            return errors;
+        }
     }
 }
