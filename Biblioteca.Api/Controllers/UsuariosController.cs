@@ -114,7 +114,7 @@ namespace Biblioteca.Api.Controllers
                     Senha = BCrypt.Net.BCrypt.HashPassword(dto.Senha)
                 };
 
-                _repository.Add(usuario);
+                usuario.Id = _repository.Add(usuario);
                 return Ok(new ApiResponse<UsuarioResponse>
                 {
                     Success = true,

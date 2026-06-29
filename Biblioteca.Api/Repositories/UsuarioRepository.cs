@@ -91,7 +91,7 @@ namespace Biblioteca.Api.Repositories
             return null;
         }
 
-        public void Add(Usuario usuario)
+        public int Add(Usuario usuario)
         {
             using SqlConnection connection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -99,6 +99,7 @@ namespace Biblioteca.Api.Repositories
 
             command.CommandText = @"
                 INSERT INTO cad.usuario(id_perfil, nome, cpf, email, senha)
+                OUTPUT INSERTED.id
                 VALUES(@id_perfil, @nome, @cpf, @email, @senha)
             ";
 
@@ -108,7 +109,7 @@ namespace Biblioteca.Api.Repositories
             command.Parameters.AddWithValue("@email", usuario.Email);
             command.Parameters.AddWithValue("@senha", usuario.Senha);
 
-            command.ExecuteNonQuery();
+            return (int)command.ExecuteScalar();
         }
 
         public bool ExistsCpf(string cpf)
