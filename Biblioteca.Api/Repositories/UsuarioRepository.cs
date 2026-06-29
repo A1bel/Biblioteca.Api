@@ -40,7 +40,7 @@ namespace Biblioteca.Api.Repositories
             {
                 UsuarioResponse usuario = new UsuarioResponse();
                 usuario.Id = Convert.ToInt32(reader["id"]);
-                usuario.IdPerfil = Convert.ToInt32(reader["id"]);
+                usuario.IdPerfil = Convert.ToInt32(reader["id_perfil"]);
                 usuario.Perfil = reader["perfil"].ToString();
                 usuario.Nome = reader["nome"].ToString();
                 usuario.Cpf = reader["cpf"].ToString();
@@ -78,7 +78,7 @@ namespace Biblioteca.Api.Repositories
                 UsuarioResponse usuario = new UsuarioResponse
                 {
                     Id = Convert.ToInt32(reader["id"]),
-                    IdPerfil = Convert.ToInt32(reader["id"]),
+                    IdPerfil = Convert.ToInt32(reader["id_perfil"]),
                     Perfil = reader["perfil"].ToString(),
                     Nome = reader["nome"].ToString(),
                     Cpf = reader["cpf"].ToString(),
