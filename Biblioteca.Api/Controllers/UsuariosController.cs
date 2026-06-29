@@ -115,11 +115,11 @@ namespace Biblioteca.Api.Controllers
                 };
 
                 _repository.Add(usuario);
-                return Ok(new ApiResponse<Usuario>
+                return Ok(new ApiResponse<UsuarioResponse>
                 {
                     Success = true,
                     Message = "Usuário cadastrado com sucesso",
-                    Data = new Usuario
+                    Data = new UsuarioResponse
                     {
                         Id = usuario.Id,
                         IdPerfil= usuario.IdPerfil,

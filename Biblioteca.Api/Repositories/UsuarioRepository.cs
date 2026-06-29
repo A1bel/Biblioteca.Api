@@ -1,4 +1,5 @@
 ﻿using Biblioteca.Api.Database;
+using Biblioteca.Api.DTOs;
 using Biblioteca.Api.Models;
 using Microsoft.Data.SqlClient;
 
@@ -13,9 +14,9 @@ namespace Biblioteca.Api.Repositories
             _dbaccess = dbaccess;
         }
 
-        public List<Usuario> GetAll()
+        public List<UsuarioResponse> GetAll()
         {
-            List<Usuario> usuarios = new List<Usuario>();
+            List<UsuarioResponse> usuarios = new List<UsuarioResponse>();
 
             using SqlConnection conection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -37,7 +38,7 @@ namespace Biblioteca.Api.Repositories
             using SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                Usuario usuario = new Usuario();
+                UsuarioResponse usuario = new UsuarioResponse();
                 usuario.Id = Convert.ToInt32(reader["id"]);
                 usuario.IdPerfil = Convert.ToInt32(reader["id"]);
                 usuario.Perfil = reader["perfil"].ToString();
@@ -50,7 +51,7 @@ namespace Biblioteca.Api.Repositories
             return usuarios;
         }
 
-        public Usuario Get(int id)
+        public UsuarioResponse Get(int id)
         {
             using SqlConnection connection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -74,7 +75,7 @@ namespace Biblioteca.Api.Repositories
             using SqlDataReader reader = command.ExecuteReader();
             if (reader.Read())
             {
-                Usuario usuario = new Usuario
+                UsuarioResponse usuario = new UsuarioResponse
                 {
                     Id = Convert.ToInt32(reader["id"]),
                     IdPerfil = Convert.ToInt32(reader["id"]),
