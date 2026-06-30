@@ -90,6 +90,48 @@ namespace Biblioteca.Api.Repositories
             return null;
         }
 
+
+        public Usuario GetByEmail(string email)
+        {
+            using SqlConnection connection = _dbaccess.OpenConnection();
+            using SqlCommand command = new SqlCommand();
+            command.Connection = connection;
+
+            command.CommandText = @"
+                SELECT
+                    u.id,
+                    u.id_perfil,
+                    p.nome AS perfil,
+                    u.nome,
+                    u.cpf,
+                    u.email,
+                    u.senha
+                FROM cad.usuario u
+                JOIN cad.perfil p ON u.id_perfil = p.id
+                WHERE u.email = @email
+            ";
+
+            command.Parameters.AddWithValue("@email", email);
+            using SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                Usuario usuario = new Usuario
+                {
+                    Id = Convert.ToInt32(reader["id"]),
+                    IdPerfil = Convert.ToInt32(reader["id_perfil"]),
+                    Perfil = reader["perfil"].ToString(),
+                    Nome = reader["nome"].ToString(),
+                    Cpf = reader["cpf"].ToString(),
+                    Email = reader["email"].ToString(),
+                    Senha = reader["senha"].ToString()
+                };
+
+                return usuario;
+            }
+
+            return null;
+        }
+
         public int Add(Usuario usuario)
         {
             using SqlConnection connection = _dbaccess.OpenConnection();
@@ -198,5 +240,6 @@ namespace Biblioteca.Api.Repositories
 
             return rowsAffected > 0;
         }
+
     }
 }
