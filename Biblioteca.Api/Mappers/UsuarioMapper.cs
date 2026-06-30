@@ -1,4 +1,4 @@
-﻿using Biblioteca.Api.DTOs;
+﻿using Biblioteca.Api.DTOs.Usuario;
 using Biblioteca.Api.Models;
 
 namespace Biblioteca.Api.Mappers

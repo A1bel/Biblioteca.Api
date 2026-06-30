@@ -2,6 +2,7 @@
 using Biblioteca.Api.Repositories;
 using Biblioteca.Api.Responses;
 using Biblioteca.Api.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Biblioteca.Api.Controllers
@@ -19,6 +20,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //BUSCAR TODOS LIVROS
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -26,6 +28,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //BUSCAR UM LIVRO
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -74,6 +77,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //CADASTRAR NOVO LIVRO
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         public IActionResult Add(Livro livro)
         {
@@ -117,6 +121,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //DELETAR UM LIVRO
+        [Authorize(Roles = "Administrador")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -161,8 +166,9 @@ namespace Biblioteca.Api.Controllers
                 });
             }
         }
-        
+
         //EDITAR UM LIVRO
+        [Authorize(Roles = "Administrador")]
         [HttpPut("{id}")]
         public IActionResult Update(int id, Livro livro)
         {

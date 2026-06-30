@@ -1,11 +1,13 @@
 ﻿using BCrypt.Net;
-using Biblioteca.Api.DTOs;
+using Biblioteca.Api.DTOs.Usuario;
 using Biblioteca.Api.Mappers;
 using Biblioteca.Api.Models;
 using Biblioteca.Api.Repositories;
 using Biblioteca.Api.Responses;
 using Biblioteca.Api.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Biblioteca.Api.Controllers
 {
@@ -21,6 +23,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //BUSCAR TODOS USUARIOS
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -34,6 +37,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //BUSCAR UM USUARIO
+        [Authorize(Roles = "Administrador")]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -83,6 +87,7 @@ namespace Biblioteca.Api.Controllers
         }
 
         //CADASTRAR NOVO USUARIO
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult Add(UsuarioCreateRequest dto)
         {
@@ -143,7 +148,8 @@ namespace Biblioteca.Api.Controllers
             }
         }
 
-        //DELETAR UM LIVRO
+        //DELETAR UM USUARIO
+        [Authorize(Roles = "Administrador")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -190,11 +196,13 @@ namespace Biblioteca.Api.Controllers
         }
 
         //EDITAR UM USUARIO
+        [Authorize]
         [HttpPut("{id}")]
         public IActionResult Update(int id, UsuarioUpdateRequest dto)
         {
             try
             {
+
                 if (id <= 0)
                 {
                     return BadRequest(new ApiResponse<object>
@@ -202,6 +210,21 @@ namespace Biblioteca.Api.Controllers
                         Success = false,
                         Message = "O id deve ser maior que zero"
                     });
+                }
+
+                int usuarioLogado = int.Parse(
+                    User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+                if (!User.IsInRole("Administrador") &&
+                    usuarioLogado != id)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden,
+                        new ApiResponse<object>
+                        {
+                            Success = false,
+                            Message = "Você não possui permissão para editar este usuário."
+                        }
+                    );
                 }
 
                 UsuarioValidator validator = new();

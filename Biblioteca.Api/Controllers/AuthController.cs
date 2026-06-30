@@ -1,8 +1,14 @@
-﻿using Biblioteca.Api.DTOs;
+﻿using Biblioteca.Api.DTOs.Auth;
+using Biblioteca.Api.Mappers;
 using Biblioteca.Api.Models;
 using Biblioteca.Api.Repositories;
 using Biblioteca.Api.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Biblioteca.Api.Controllers
 {
@@ -11,12 +17,15 @@ namespace Biblioteca.Api.Controllers
     public class AuthController : Controller
     {
         private readonly UsuarioRepository _repository;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(UsuarioRepository repository)
+        public AuthController(UsuarioRepository repository, IConfiguration configuration)
         {
             _repository = repository;
+            _configuration = configuration;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public IActionResult Login(LoginRequest dto)
         {
@@ -43,8 +52,7 @@ namespace Biblioteca.Api.Controllers
                     });
                 }
 
-                bool senhaValida =
-                    BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha);
+                bool senhaValida =  BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.Senha);
 
                 if (!senhaValida)
                 {
@@ -55,10 +63,22 @@ namespace Biblioteca.Api.Controllers
                     });
                 }
 
+                string token = GenerateToken(usuario);
+
+                LoginResponse response = new()
+                {
+                    Token = token,
+                    Expiration = DateTime.UtcNow.AddMinutes(
+                        Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"])),
+
+                    Usuario = UsuarioMapper.ToResponse(usuario)
+                };
+
                 return Ok(new ApiResponse<object>
                 {
                     Success = true,
-                    Message = "Login realizado com sucesso"
+                    Message = "Login realizado com sucesso",
+                    Data = response
                 });
             }
             catch (Exception ex)
@@ -73,6 +93,32 @@ namespace Biblioteca.Api.Controllers
                     }
                 });
             }
+        }
+
+        private string GenerateToken(Usuario usuario)
+        {
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Nome),
+                new Claim(ClaimTypes.Role, usuario.Perfil)
+            };
+
+            var credentials = new SigningCredentials(
+            new SymmetricSecurityKey(key),
+            SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(
+                Convert.ToDouble(_configuration["Jwt:ExpirationInMinutes"])),
+            signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

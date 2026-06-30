@@ -1,4 +1,4 @@
-﻿using Biblioteca.Api.DTOs;
+﻿using Biblioteca.Api.DTOs.Usuario;
 using System.Text.RegularExpressions;
 
 namespace Biblioteca.Api.Validators
