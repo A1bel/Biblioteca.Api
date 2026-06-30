@@ -1,10 +1,11 @@
-﻿using Biblioteca.Api.DTOs;
+﻿using BCrypt.Net;
+using Biblioteca.Api.DTOs;
+using Biblioteca.Api.Mappers;
 using Biblioteca.Api.Models;
 using Biblioteca.Api.Repositories;
 using Biblioteca.Api.Responses;
 using Biblioteca.Api.Validators;
 using Microsoft.AspNetCore.Mvc;
-using BCrypt.Net;
 
 namespace Biblioteca.Api.Controllers
 {
@@ -23,7 +24,13 @@ namespace Biblioteca.Api.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_repository.GetAll());
+            List<Usuario> usuarios = _repository.GetAll();
+            return Ok(new ApiResponse<List<UsuarioResponse>>
+            {
+                Success = true,
+                Message = "Usuários encontrados",
+                Data = UsuarioMapper.ToResponseList(usuarios)
+            });
         }
 
         //BUSCAR UM USUARIO
@@ -45,7 +52,7 @@ namespace Biblioteca.Api.Controllers
 
                 if(usuario == null)
                 {
-                    return BadRequest(new ApiResponse<object>
+                    return NotFound(new ApiResponse<object>
                     {
                         Success = false,
                         Message = "Usuário não encontrado"
@@ -56,7 +63,7 @@ namespace Biblioteca.Api.Controllers
                 {
                     Success = true,
                     Message = "Usuário encontrado",
-                    Data = usuario
+                    Data = UsuarioMapper.ToResponse(usuario)
                 });
 
 
@@ -119,15 +126,7 @@ namespace Biblioteca.Api.Controllers
                 {
                     Success = true,
                     Message = "Usuário cadastrado com sucesso",
-                    Data = new UsuarioResponse
-                    {
-                        Id = usuario.Id,
-                        IdPerfil= usuario.IdPerfil,
-                        Perfil = usuario.Perfil,
-                        Nome = usuario.Nome,
-                        Cpf = usuario.Cpf,
-                        Email = usuario.Email
-                    }
+                    Data = UsuarioMapper.ToResponse(usuario)
                 });
             }
             catch(Exception ex)
@@ -155,7 +154,7 @@ namespace Biblioteca.Api.Controllers
                     return BadRequest(new ApiResponse<object>
                     {
                         Success = false,
-                        Message = "Id inválido"
+                        Message = "Id deve ser maior que zero"
                     });
                 }
 
@@ -228,7 +227,7 @@ namespace Biblioteca.Api.Controllers
                     });
                 }
 
-                UsuarioResponse usuarioAtual = _repository.Get(id);
+                Usuario usuarioAtual = _repository.Get(id);
 
                 if(usuarioAtual == null)
                 {
@@ -258,21 +257,13 @@ namespace Biblioteca.Api.Controllers
                     });
                 }
 
-                UsuarioResponse usuarioAtualizado = _repository.Get(id);
+                Usuario usuarioAtualizado = _repository.Get(id);
 
                 return Ok(new ApiResponse<UsuarioResponse>
                 {
                     Success = true,
                     Message = "Usuário atualizado com sucesso",
-                    Data = new UsuarioResponse
-                    {
-                        Id = usuarioAtualizado.Id,
-                        IdPerfil = usuarioAtualizado.IdPerfil,
-                        Perfil = usuarioAtualizado.Perfil,
-                        Nome = usuarioAtualizado.Nome,
-                        Cpf = usuarioAtualizado.Cpf,
-                        Email = usuarioAtualizado.Email
-                    }
+                    Data = UsuarioMapper.ToResponse(usuarioAtualizado)
                 });
             }
             catch(Exception ex)

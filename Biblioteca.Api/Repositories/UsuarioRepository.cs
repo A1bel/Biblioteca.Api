@@ -1,5 +1,4 @@
 ﻿using Biblioteca.Api.Database;
-using Biblioteca.Api.DTOs;
 using Biblioteca.Api.Models;
 using Microsoft.Data.SqlClient;
 
@@ -14,9 +13,9 @@ namespace Biblioteca.Api.Repositories
             _dbaccess = dbaccess;
         }
 
-        public List<UsuarioResponse> GetAll()
+        public List<Usuario> GetAll()
         {
-            List<UsuarioResponse> usuarios = new List<UsuarioResponse>();
+            List<Usuario> usuarios = new List<Usuario>();
 
             using SqlConnection conection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -38,7 +37,7 @@ namespace Biblioteca.Api.Repositories
             using SqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
-                UsuarioResponse usuario = new UsuarioResponse();
+                Usuario usuario = new Usuario();
                 usuario.Id = Convert.ToInt32(reader["id"]);
                 usuario.IdPerfil = Convert.ToInt32(reader["id_perfil"]);
                 usuario.Perfil = reader["perfil"].ToString();
@@ -51,7 +50,7 @@ namespace Biblioteca.Api.Repositories
             return usuarios;
         }
 
-        public UsuarioResponse Get(int id)
+        public Usuario Get(int id)
         {
             using SqlConnection connection = _dbaccess.OpenConnection();
             using SqlCommand command = new SqlCommand();
@@ -75,7 +74,7 @@ namespace Biblioteca.Api.Repositories
             using SqlDataReader reader = command.ExecuteReader();
             if (reader.Read())
             {
-                UsuarioResponse usuario = new UsuarioResponse
+                Usuario usuario = new Usuario
                 {
                     Id = Convert.ToInt32(reader["id"]),
                     IdPerfil = Convert.ToInt32(reader["id_perfil"]),
@@ -125,10 +124,12 @@ namespace Biblioteca.Api.Repositories
             ";
 
             if (ignoredId != null)
+            {
                 command.CommandText += " AND id <> @id";
+                command.Parameters.AddWithValue("@id", ignoredId);
+            }
 
             command.Parameters.AddWithValue("@cpf", cpf);
-            command.Parameters.AddWithValue("@id", ignoredId);
 
             return (int)command.ExecuteScalar() > 0;
         }
@@ -146,10 +147,12 @@ namespace Biblioteca.Api.Repositories
             ";
 
             if (ignoredId != null)
+            {
                 command.CommandText += " AND id <> @id";
+                command.Parameters.AddWithValue("@id", ignoredId);  
+            }
 
             command.Parameters.AddWithValue("@email", email);
-            command.Parameters.AddWithValue("@id", ignoredId);
 
             return (int)command.ExecuteScalar() > 0;
         }
