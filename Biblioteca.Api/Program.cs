@@ -62,6 +62,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<DatabaseAccess>();
 builder.Services.AddScoped<LivroRepository>();
 builder.Services.AddScoped<UsuarioRepository>();
+builder.Services.AddScoped<EmprestimoRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
